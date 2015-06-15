@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
-        <id>Spine</id>
+        <id>MapStrap</id>
         <version>1.0.0</version>
         <title>Spine</title>
         <authors>DevDigital</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Simple convention based bootstrapper for AutoMapper.</description>
+        <description>MapStrap is a simple set of interfaces for defining mappings between types in a strictly layered application.</description>
         <dependencies>
             <group targetFramework=".NETFramework4.5">
                 <dependency id="AutoMapper" version="3.3.1" />
@@ -14,6 +14,6 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="..\Source\Spine\bin\Release\Spine.dll" target="lib\net45\Spine.dll" />
+        <file src="..\Source\MapStrap\bin\Release\MapStrap.dll" target="lib\net45\MapStrap.dll" />
     </files>
 </package>
