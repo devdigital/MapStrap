@@ -72,7 +72,7 @@ public class UserDto : IMapFromDomain<User>
 
 That's it! You'll see later how we bootstrap using MapStrap so that the appropriate AutoMapper mapping is automatically created, and how we then perform a mapping from a `User` instance to a `UserDto`.
 
-### Mapping Customisations 
+### Customising Mappings
 
 If you wish to add some futher configuration to your mapping, to override some of the AutoMapper conventions, then you can use the `IHaveCustomMap<TSource, TDestination>` where `TSource` is the domain type (in this case `User`) and `TDestination` is the DTO type (in this case `UserDto`). 
 
@@ -154,8 +154,74 @@ public class UserDataDto : IMapToDomain<User>, IMapToAlternativeDomain<Admin>
 
 ## Bootstrapping
 
+With all your mappings defined on your DTOs, you can automatically have MapStrap create all the appropriate AutoMapper mappings by placing the following code as part of your application bootstrapping process:
+
+```csharp
+new MapStrap()
+    .SelectDtosFromAssemblies(new[] { typeof(UserDto).Assembly, typeof(UserDataDto).Assembly })
+    .CreateMaps();
+```
+
+The `SelectDtosFromAssemblies` method takes a collection of assemblies that contain DTOs that you have configured with the mapping interfaces. Here, we use `typeof` to provide that collection of assemblies in a type safe way. 
+
+Once the assemblies have been selected, then we call `CreateMaps` to generate all of the configured mappings within AutoMapper. With the mappings created, we can then perform mappings between instances of our types using AutoMapper (see below).
+
+### Customising Bootstrapping
+
+Coming soon...
 
 ## Mapping
+
+With MapStrap successfully bootstrapped, all of our mappings are now created as AutoMapper mappings, and are ready to be used to map between instances of types. You would typically want to do this in your MVC or API controllers.
+
+### Examples
+
+You can choose to use AutoMapper's `Mapper` type directly in your controllers:
+
+```csharp
+[HttpGet]
+[Route("api/users")]
+public IHttpActionResult Users()
+{
+   var users = this.usersRepository.GetUsers();
+   var userApiModels = Mapper.Map<IEnumerable<User>, IEnumerable<UserApiModel>>(users);
+   return this.Ok(userApiModels);
+}
+```
+
+However, you may wish to introduce an abstraction for mapping, for testing purposes:
+
+```csharp
+public UsersController(IUsersRepository usersRepository, IMapper<User, UserApiModel> userMapper)
+{
+   this.usersRepository = usersRepository;
+   this.userMapper = userMapper;
+}
+
+public IHttpActionResult Users()
+{
+   var users = this.usersRepository.GetUsers();
+   var userApiModels = this.userMapper.MapCollection(users);
+   return this.Ok(userApiModels);
+}
+```
+
+Here `mapper` is an instance of a domain `IMapper<TSource, TDestination>` type, which has one AutoMapper implementation:
+
+```csharp
+internal class AutoMapperMapper<TSource, TDestination> : IMapper<TSource, TDestination>
+{        
+    public TDestination Map(TSource source)
+    {
+        return Mapper.Map<TSource, TDestination>(source);
+    }
+
+    public IEnumerable<TDestination> MapCollection(IEnumerable<TSource> source)
+    {
+        return Mapper.Map<IEnumerable<TSource>, IEnumerable<TDestination>>(source);
+    }
+}
+```
 
 # Downloads
 
