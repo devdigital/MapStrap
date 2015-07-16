@@ -72,6 +72,8 @@ public class UserDto : IMapFromDomain<User>
 
 That's it! You'll see later how we bootstrap using MapStrap so that the appropriate AutoMapper mapping is automatically created, and how we then perform a mapping from a `User` instance to a `UserDto`.
 
+### Mapping Customisations 
+
 If you wish to add some futher configuration to your mapping, to override some of the AutoMapper conventions, then you can use the `IHaveCustomMap<TSource, TDestination>` where `TSource` is the domain type (in this case `User`) and `TDestination` is the DTO type (in this case `UserDto`). 
 
 This interface defines a Map method that takes an AutoMapper `IMappingExpression<TSource, TDestination>`:
@@ -91,6 +93,22 @@ public class UserDto : IHaveCustomMap<User, UserDto>
 }
 ```
 
+If you want full control over AutoMapper, then you can use the `IHaveCustomConfiguration` interface. This defines a `Configure` method which takes the AutoMapper configuration instance:
+
+```csharp
+public class UserDto : IHaveCustomConfiguration
+{
+   public int Id { get; set; }
+   public string Name { get; set; }
+   
+   public void Configure(IConfiguration configuration)
+   {
+       // Access AutoMapper configuration instance here
+       ...
+   }
+}
+```
+
 ## Mapping from Data Transfer Objects (DTOs) to Domain Models
 
 ## Bootstrapping
@@ -99,5 +117,7 @@ public class UserDto : IHaveCustomMap<User, UserDto>
 ## Mapping
 
 # Downloads
+
+MapStrap is available via NuGet:
 
 * [MapStrap](https://www.nuget.org/packages/MapStrap/)
