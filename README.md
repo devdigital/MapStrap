@@ -60,31 +60,31 @@ public class User
 }
 ```
 
-If we wish to map by convention only (map property values if their names match), then we can define our `UserDto` using the `IMapFromDomain<TDomain>` interface, where `TDomain` is the type of the domain model that we are mapping from (in this case `User`).
+If we wish to map by convention only (map property values if their names match), then we can define our `UserApiModel` using the `IMapFromDomain<TDomain>` interface, where `TDomain` is the type of the domain model that we are mapping from (in this case `User`).
 
 ```csharp
-public class UserDto : IMapFromDomain<User>
+public class UserApiModel : IMapFromDomain<User>
 {
    public int Id { get; set; }
    public string Name { get; set; }
 }
 ```
 
-That's it! You'll see later how we bootstrap using MapStrap so that the appropriate AutoMapper mapping is automatically created, and how we then perform a mapping from a `User` instance to a `UserDto`.
+That's it! You'll see later how we bootstrap using MapStrap so that the appropriate AutoMapper mapping is automatically created, and how we then perform a mapping from a `User` instance to a `UserApiModel`.
 
 ### Customising Mappings
 
-If you wish to add some futher configuration to your mapping, to override some of the AutoMapper conventions, then you can use the `IHaveCustomMap<TSource, TDestination>` where `TSource` is the domain type (in this case `User`) and `TDestination` is the DTO type (in this case `UserDto`). 
+If you wish to add some futher configuration to your mapping, to override some of the AutoMapper conventions, then you can use the `IHaveCustomMap<TSource, TDestination>` where `TSource` is the domain type (in this case `User`) and `TDestination` is the DTO type (in this case `UserApiModel`). 
 
 This interface defines a Map method that takes an AutoMapper `IMappingExpression<TSource, TDestination>`:
 
 ```csharp
-public class UserDto : IHaveCustomMap<User, UserDto>
+public class UserApiModel : IHaveCustomMap<User, UserApiModel>
 {
    public int Id { get; set; }
    public string Name { get; set; }
    
-   public void Map(IMappingExpression<User, UserDto> mapping)
+   public void Map(IMappingExpression<User, UserApiModel> mapping)
    {
       mapping.ForMember(
           u => u.Name,
@@ -96,7 +96,7 @@ public class UserDto : IHaveCustomMap<User, UserDto>
 If you want full control over AutoMapper, then you can use the `IHaveCustomConfiguration` interface. This defines a `Configure` method which takes the AutoMapper configuration instance:
 
 ```csharp
-public class UserDto : IHaveCustomConfiguration
+public class UserApiModel : IHaveCustomConfiguration
 {
    public int Id { get; set; }
    public string Name { get; set; }
@@ -120,7 +120,7 @@ A typical example is when returning domain models from domain repositories where
 In the majority of cases your data DTO will map to a single domain model type. You can use the provided `IMapToDomain<TDomain>` interface on your data DTO. It defines a single `TDomain ToDomainModel()` method:
 
 ```
-public class UserDataDto : IMapToDomain<User>
+public class UserDto : IMapToDomain<User>
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -135,7 +135,7 @@ public class UserDataDto : IMapToDomain<User>
 In some cases your data DTO may map to more than one domain type. In this case, you can continue decorating your data DTO type with multiple instances of `IMapToAlternativeDomain<TDomain>` - one for each domain model type. This interface defines a single `void ToDomainModel(out TDomain result)` method:
 
 ```
-public class UserDataDto : IMapToDomain<User>, IMapToAlternativeDomain<Admin>
+public class UserDto : IMapToDomain<User>, IMapToAlternativeDomain<Admin>
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -158,7 +158,7 @@ With all your mappings defined on your DTOs, you can automatically have MapStrap
 
 ```csharp
 new MapStrap()
-    .SelectDtosFromAssemblies(new[] { typeof(UserDto).Assembly, typeof(UserDataDto).Assembly })
+    .SelectDtosFromAssemblies(new[] { typeof(UserApiModel).Assembly, typeof(UserDto).Assembly })
     .CreateMaps();
 ```
 
