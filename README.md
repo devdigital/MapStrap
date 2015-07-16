@@ -13,7 +13,7 @@ code and next to the associated Data Transfer Object (DTO).
 
 # Details
 
-## Mapping from Domain Models to Data Transfer Objects (DTOs)
+## Configuring Mapping from Domain Models to Data Transfer Objects (DTOs)
 
 In a strictly layered application, DTOs are used in responses. 
 For example, in an MVC application a view model is passed to a view, rather than exposing a domain model. 
@@ -109,7 +109,7 @@ public class UserApiModel : IHaveCustomConfiguration
 }
 ```
 
-## Mapping from Data Transfer Objects (DTOs) to Domain Models
+## Configuring Mapping from Data Transfer Objects (DTOs) to Domain Models
 
 Domain models use encapsulation to protect their invariants, therefore AutoMapper is not used to map from DTOs to domain models. However, MapStrap does provide a couple of convenience methods to standardise how domain models are instantiated from DTOs.
 
@@ -170,7 +170,7 @@ Once the assemblies have been selected, then we call `CreateMaps` to generate al
 
 Coming soon...
 
-## Mapping
+## Mapping from Domain Models to Data Transfer Objects (DTOs)
 
 With MapStrap successfully bootstrapped, all of our mappings are now created as AutoMapper mappings, and are ready to be used to map between instances of types. You would typically want to do this in your MVC or API controllers.
 
@@ -219,6 +219,29 @@ internal class AutoMapperMapper<TSource, TDestination> : IMapper<TSource, TDesti
     public IEnumerable<TDestination> MapCollection(IEnumerable<TSource> source)
     {
         return Mapper.Map<IEnumerable<TSource>, IEnumerable<TDestination>>(source);
+    }
+}
+```
+
+## Mapping from Data Transfer Objects (DTOs) to Domain Models
+
+To map from DTOs to domain models, AutoMapper is not used. Instead, you simple invoke the `ToDomainModel` method on your DTO type.
+
+### Examples
+
+Here we have an Entity Framework DTO type (`UserDto`) which we have a collection of within a `DbSet` on our `DbContext`. In our domain repository Entity Framework implementation, we use projection to make the conversion from DTO to domain model:
+
+```csharp
+public class EntityFrameworkUsersRepository : IUsersRepository
+{
+    ...
+    
+    public IEnumerable<User> GetUsers()
+    {
+       using (var context = this.contextFactory.Create())
+       {
+          return context.Users.Select(u => u.ToDomainModel()).ToList();
+       }
     }
 }
 ```
