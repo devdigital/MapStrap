@@ -68,6 +68,29 @@
             Assert.Equal(5, userDto.Id);
             Assert.Equal(5, employeeDto.Id);
             Assert.Equal(5, adminDto.Id);
-        }        
+        }
+
+        [Fact]
+        public void StaticApiCreateMaps()
+        {
+            Mapper.Initialize(
+                cfg =>
+                    {
+                        cfg.CreateMaps(new AssemblyTypeResolver(new[] { typeof(UserDto).Assembly }, publicOnly: false));
+                    });
+
+            var user = new User(5);
+            var userDto = Mapper.Map<User, UserDto>(user);
+
+            var employee = new Employee(5);
+            var employeeDto = Mapper.Map<Employee, EmployeeDto>(employee);
+
+            var admin = new Admin(5);
+            var adminDto = Mapper.Map<Admin, AdminDto>(admin);
+
+            Assert.Equal(5, userDto.Id);
+            Assert.Equal(5, employeeDto.Id);
+            Assert.Equal(5, adminDto.Id);
+        }
     }
 }
