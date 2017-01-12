@@ -2,19 +2,11 @@
 {
     internal class User
     {
-        private readonly int id;
-
         public User(int id)
         {
-            this.id = id;
+            this.Id = id;
         }
 
-        public int Id
-        {
-            get
-            {
-                return this.id;
-            }
-        }
+        public int Id { get; }
     }
 }
