@@ -1,5 +1,5 @@
 ﻿namespace MapStrap.UnitTests.Dtos
-{
+{    
     using AutoMapper;
 
     using global::MapStrap.UnitTests.Models;    
@@ -8,7 +8,7 @@
     {
         public int Id { get; set; }
 
-        public void Configure(IConfiguration configuration)
+        public void Configure(IMapperConfigurationExpression configuration)
         {
             configuration.CreateMap<Admin, AdminDto>();
         }

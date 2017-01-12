@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public interface IDtoSelectionStrategy
+    public interface ITypeResolver
     {
         IEnumerable<Type> GetTypes();
     }

@@ -2,19 +2,11 @@
 {
     internal class Admin
     {
-        private readonly int id;
-
         public Admin(int id)
         {
-            this.id = id;
+            this.Id = id;
         }
 
-        public int Id
-        {
-            get
-            {
-                return this.id;
-            }
-        }
+        public int Id { get; }
     }
 }
