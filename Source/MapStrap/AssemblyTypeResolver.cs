@@ -1,21 +1,21 @@
-﻿namespace MapStrap.Strategies
+﻿namespace MapStrap
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
-    public class AssemblyDtoSelectionStrategy : IDtoSelectionStrategy
+    public class AssemblyTypeResolver : ITypeResolver
     {
         private readonly IEnumerable<Assembly> assemblies;
 
         private readonly bool publicOnly;
 
-        public AssemblyDtoSelectionStrategy(IEnumerable<Assembly> assemblies, bool publicOnly)
+        public AssemblyTypeResolver(IEnumerable<Assembly> assemblies, bool publicOnly = true)
         {
             if (assemblies == null)
             {
-                throw new ArgumentNullException("assemblies");
+                throw new ArgumentNullException(nameof(assemblies));
             }
 
             this.assemblies = assemblies;

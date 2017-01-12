@@ -1,9 +1,9 @@
 ﻿namespace MapStrap
 {
-    using AutoMapper;
+    using AutoMapper;    
 
     public interface IHaveCustomConfiguration
     {
-        void Configure(IConfiguration configuration);
+        void Configure(IMapperConfigurationExpression configuration);
     }
 }

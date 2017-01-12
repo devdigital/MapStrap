@@ -2,19 +2,11 @@
 {
     internal class Employee
     {
-        private readonly int id;
-
         public Employee(int id)
         {
-            this.id = id;
+            this.Id = id;
         }
 
-        public int Id
-        {
-            get
-            {
-                return this.id;
-            }
-        }
+        public int Id { get; }
     }
 }
