@@ -54,7 +54,7 @@ public class UserApiModel : IMapFromDomain<User>
 }
 ```
 
-That's it! You'll see later how we bootstrap using MapStrap so that the appropriate AutoMapper mapping is automatically created, and how we then perform a mapping from a `User` instance to a `UserApiModel`.
+You'll see later how we bootstrap using MapStrap so that the appropriate AutoMapper mapping is automatically created, and how we then perform a mapping from a `User` instance to a `UserApiModel`.
 
 ### Customising Mappings
 
@@ -90,49 +90,6 @@ public class UserApiModel : IHaveCustomConfiguration
        // Access AutoMapper configuration instance here
        ...
    }
-}
-```
-
-## Configuring Mapping from Data Transfer Objects (DTOs) to Domain Models
-
-Domain models use encapsulation to protect their invariants, therefore AutoMapper is not used to map from DTOs to domain models. However, MapStrap does provide a couple of convenience methods to standardise how domain models are instantiated from DTOs.
-
-A typical example is when returning domain models from domain repositories where repository implementations sit within a data layer, and the data layer uses DTOs to model the data store - for example mapping Entity Framework DTOs used within `DbSets` to domain models.
-
-### Examples
-
-In the majority of cases your data DTO will map to a single domain model type. You can use the provided `IMapToDomain<TDomain>` interface on your data DTO. It defines a single `TDomain ToDomainModel()` method:
-
-```
-public class UserDto : IMapToDomain<User>
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-
-    public User ToDomainModel()
-    {
-       return new User(this.Id, this.Name);
-    }
-}
-```
-
-In some cases your data DTO may map to more than one domain type. In this case, you can continue decorating your data DTO type with multiple instances of `IMapToAlternativeDomain<TDomain>` - one for each domain model type. This interface defines a single `void ToDomainModel(out TDomain result)` method:
-
-```
-public class UserDto : IMapToDomain<User>, IMapToAlternativeDomain<Admin>
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-
-    public User ToDomainModel()
-    {
-       return new User(this.Id, this.Name);
-    }
-    
-    public void ToDomainModel(out Admin result)
-    {
-       result = new Admin(...);
-    }
 }
 ```
 
@@ -280,9 +237,48 @@ builder.RegisterGeneric(typeof(AutoMapperMapper<,>))
 public UsersController(IUsersRepository usersRepository, IMapper<MyDomain, MyApiModel> mapper)
 ```
 
-## Mapping from Data Transfer Objects (DTOs) to Domain Models
+## Configuring Mapping from Data Transfer Objects (DTOs) to Domain Models
 
-To map from DTOs to domain models, AutoMapper is not used. Instead, you simple invoke the `ToDomainModel` method on your DTO type.
+Domain models use encapsulation to protect their invariants, therefore *AutoMapper is not used to map from DTOs to domain models*. However, MapStrap does provide a couple of convenience methods to standardise how domain models are instantiated from DTOs.
+
+A typical example is when returning domain models from domain repositories where repository implementations sit within a data layer, and the data layer uses DTOs to model the data store - for example mapping Entity Framework DTOs used within `DbSets` to domain models.
+
+### Examples
+
+In the majority of cases your data DTO will map to a single domain model type. You can use the provided `IMapToDomain<TDomain>` interface on your data DTO. It defines a single `TDomain ToDomainModel()` method:
+
+```
+public class UserDto : IMapToDomain<User>
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+
+    public User ToDomainModel()
+    {
+       return new User(this.Id, this.Name);
+    }
+}
+```
+
+In some cases your data DTO may map to more than one domain type. In this case, you can continue decorating your data DTO type with multiple instances of `IMapToAlternativeDomain<TDomain>` - one for each domain model type. This interface defines a single `void ToDomainModel(out TDomain result)` method:
+
+```
+public class UserDto : IMapToDomain<User>, IMapToAlternativeDomain<Admin>
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+
+    public User ToDomainModel()
+    {
+       return new User(this.Id, this.Name);
+    }
+    
+    public void ToDomainModel(out Admin result)
+    {
+       result = new Admin(...);
+    }
+}
+```
 
 ### Examples
 
