@@ -95,7 +95,7 @@ public class UserApiModel : IHaveCustomConfiguration
 
 ## Bootstrapping
 
-With all your mappings defined on your DTOs, you can automatically have MapStrap create all the appropriate AutoMapper mappings by placing the following code as part of your application bootstrapping process. You can use AutoMappers instance or static based API. Here we use the instance based API:
+With all your mappings defined on your DTOs, you can automatically have MapStrap create all the appropriate AutoMapper mappings by placing the following code as part of your application bootstrapping process. You can use AutoMapper's [instance or static based API](https://github.com/AutoMapper/AutoMapper/wiki/Static-and-Instance-API). Here we use the instance based API:
 
 ```csharp
 var config = new MapperConfiguration(
@@ -112,7 +112,7 @@ var config = new MapperConfiguration(
 var mapper = config.CreateMapper();
 ```
 
-> Note that if you prefer to use AutoMappers static API instead, the `CreateMaps` 
+> Note that if you prefer to use AutoMappers static API instead, the `CreateMaps`, `CreateConventionMaps`, `CreateCustomMaps`, and `CreateCustomConfiguration` extension methods can also be used with `Mapper.Initialize()`.
 
 MapStrap provides a `CreateMaps` extension method which takes an `ITypeResolver`. This returns the collection types that we wish to be considered when scanning for convention based maps. There is one implementation out of the box - `AssemblyTypeResolver` which takes a collection of assemblies to scan.
 
