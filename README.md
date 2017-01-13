@@ -114,13 +114,13 @@ var mapper = config.CreateMapper();
 
 > Note that if you prefer to use AutoMappers static API instead, the `CreateMaps`, `CreateConventionMaps`, `CreateCustomMaps`, and `CreateCustomConfiguration` extension methods can also be used with `Mapper.Initialize()`.
 
-MapStrap provides a `CreateMaps` extension method which takes an `ITypeResolver`. This returns the collection types that we wish to be considered when scanning for convention based maps. There is one implementation out of the box - `AssemblyTypeResolver` which takes a collection of assemblies to scan.
+MapStrap provides a `CreateMaps` extension method which takes an `ITypeResolver`. This returns the collection of types that we wish to be considered when scanning for mappings. There is one implementation out of the box - `AssemblyTypeResolver` which takes a collection of assemblies to scan.
 
-> Note that you can implement your own `ITypeResolver` if you wish to have more control over what types are scanned.
+> Note that you can implement your own `ITypeResolver` if you wish to have more control over what types are scanned for mappings.
 
 The `CreateMaps` extension then automatically creates AutoMapper maps for each type returned from the type resolver, based on convention, custom maps, or configuration.
 
-If you only want to scan for a subset of convention, custom maps, and configuration then use a combination of the `CreateConventionMaps`, `CreateCustomMaps`, and `CreateCustomConfiguration` extension methods instead.
+If you only want to scan for a subset of convention, custom maps, and configuration maps then use a combination of the `CreateConventionMaps`, `CreateCustomMaps`, and `CreateCustomConfiguration` extension methods instead.
 
 ## Mapping from Domain Models to Data Transfer Objects (DTOs)
 
