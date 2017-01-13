@@ -271,10 +271,14 @@ public class AutoMapperMapper<TSource, TDestination> : IMapper<TSource, TDestina
     }
 }
 
+// Register your IMapper<,> implemenation
+builder.RegisterGeneric(typeof(AutoMapperMapper<,>))
+    .As(typeof(IMapper<,>))    
+    .SingleInstance();
+
+// Inject your mapper abstraction into your controller:
 public UsersController(IUsersRepository usersRepository, IMapper<MyDomain, MyApiModel> mapper)
 ```
-
-> Note that neither the `IMapper<,>` or `AutoMapperMapper<,>` types are provided out of the box because they are domain types - they should be shaped to suit your domain, and if they were provided out of the box then the Dependency Inversion Principle would be violated.
 
 ## Mapping from Data Transfer Objects (DTOs) to Domain Models
 
