@@ -9,13 +9,13 @@ code and next to the associated Data Transfer Object (DTO).
 
 1. Install the [MapStrap](https://www.nuget.org/packages/MapStrap) NuGet package.
 2. Use the MapStrap interface types on your Data Transfer Objects (DTOs) to define your AutoMapper mappings.
-3. Use the MapStrap type to bootstrap the configuration of AutoMapper.
+3. Use the MapStrap AutoMapper extension methods during bootstrap to create your AutoMapper maps by convention.
 
 # Details
 
 ## Configuring Mapping from Domain Models to Data Transfer Objects (DTOs)
 
-In a strictly layered application, DTOs are used in responses. 
+In a strictly layered application, DTOs are used in responses from API or MVC controllers.
 For example, in an MVC application a view model is passed to a view, rather than exposing a domain model. 
 In a Web API, an API model is serialized as part of the response to an HTTP request, rather than returning a domain model directly.
 
@@ -23,44 +23,28 @@ To configure your mapping between your domain model and DTO, use one of the foll
 
 * `IMapFromDomain<TDomain>` - use this for convention only based mappings
 * `IHaveCustomMap<TSource, TDestination>` - use this to add overriding configurations to your mappings (gets access to AutoMapper IMappingExpression)
-* `IHaveCustomConfiguration` - use this to have access to full AutoMapper configuration (gets access to AutoMapper IConfiguration)
+* `IHaveCustomConfiguration` - use this to have access to full AutoMapper configuration (gets access to AutoMapper `IMapperConfigurationExpression`)
 
 ### Examples
 
-Assume that we have the following `User` domain model:
+Assume that we have the following `User` domain model that uses encapsulation to protect its invariants:
 
 ```csharp
 public class User
 {
-    private readonly int id;
-    
-    private readonly string name;
-
     public User(int id, string name)
     {
-        this.id = id;
-        this.name = name;
+        this.Id = id;
+        this.Name = name;
     }
     
-    public int Id
-    {
-        get
-        {
-            return this.id;
-        }
-    }
-    
-    public string Name
-    {
-        get
-        {
-            return this.name;
-        }
-    }
+    public int Id { get; }
+        
+    public string Name { get; }   
 }
 ```
 
-If we wish to map by convention only (map property values if their names match), then we can define our `UserApiModel` using the `IMapFromDomain<TDomain>` interface, where `TDomain` is the type of the domain model that we are mapping from (in this case `User`).
+If we wish to return this type from our API controller, then we would have an equivalent `UserApiModel` or similar type. To map by convention only (map property values if their names match), then we can define our `UserApiModel` using the `IMapFromDomain<TDomain>` interface, where `TDomain` is the type of the domain model that we are mapping from (in this case `User`).
 
 ```csharp
 public class UserApiModel : IMapFromDomain<User>
@@ -101,7 +85,7 @@ public class UserApiModel : IHaveCustomConfiguration
    public int Id { get; set; }
    public string Name { get; set; }
    
-   public void Configure(IConfiguration configuration)
+   public void Configure(IMapperConfigurationExpression configuration)
    {
        // Access AutoMapper configuration instance here
        ...
@@ -154,21 +138,32 @@ public class UserDto : IMapToDomain<User>, IMapToAlternativeDomain<Admin>
 
 ## Bootstrapping
 
-With all your mappings defined on your DTOs, you can automatically have MapStrap create all the appropriate AutoMapper mappings by placing the following code as part of your application bootstrapping process:
+With all your mappings defined on your DTOs, you can automatically have MapStrap create all the appropriate AutoMapper mappings by placing the following code as part of your application bootstrapping process. You can use AutoMappers instance or static based API. Here we use the instance based API:
 
 ```csharp
-new MapStrap()
-    .SelectDtosFromAssemblies(new[] { typeof(UserApiModel).Assembly, typeof(UserDto).Assembly })
-    .CreateMaps();
+var config = new MapperConfiguration(
+    cfg =>
+        {
+            cfg.CreateMaps(
+                new AssemblyTypeResolver(
+                    new[]
+                    {
+                        typeof(MyApiModel).Assembly                        
+                    }));
+        });
+
+var mapper = config.CreateMapper();
 ```
 
-The `SelectDtosFromAssemblies` method takes a collection of assemblies that contain DTOs that you have configured with the mapping interfaces. Here, we use `typeof` to provide that collection of assemblies in a type safe way. 
+> Note that if you prefer to use AutoMappers static API instead, the `CreateMaps` 
 
-Once the assemblies have been selected, then we call `CreateMaps` to generate all of the configured mappings within AutoMapper. With the mappings created, we can then perform mappings between instances of our types using AutoMapper (see below).
+MapStrap provides a `CreateMaps` extension method which takes an `ITypeResolver`. This returns the collection types that we wish to be considered when scanning for convention based maps. There is one implementation out of the box - `AssemblyTypeResolver` which takes a collection of assemblies to scan.
 
-### Customising Bootstrapping
+> Note that you can implement your own `ITypeResolver` if you wish to have more control over what types are scanned.
 
-Coming soon...
+The `CreateMaps` extension then automatically creates AutoMapper maps for each type returned from the type resolver, based on convention, custom maps, or configuration.
+
+If you only want to scan for a subset of convention, custom maps, and configuration then use a combination of the `CreateConventionMaps`, `CreateCustomMaps`, and `CreateCustomConfiguration` extension methods instead.
 
 ## Mapping from Domain Models to Data Transfer Objects (DTOs)
 
@@ -176,7 +171,7 @@ With MapStrap successfully bootstrapped, all of our mappings are now created as 
 
 ### Examples
 
-You can choose to use AutoMapper's `Mapper` type directly in your controllers:
+If using AutoMapper's static API, then you can choose to use AutoMapper's `Mapper` type directly in your controllers:
 
 ```csharp
 [HttpGet]
@@ -222,6 +217,64 @@ internal class AutoMapperMapper<TSource, TDestination> : IMapper<TSource, TDesti
     }
 }
 ```
+
+Alternatively, if you prefer to use the instance based API, then the `IMapper` instance returned from `CreateMapper` can be injected either into your controllers, or into your `AutoMapperMapper` implementation. You can register the `IMapper` instance with your IoC container, for example with Autofac:
+
+```csharp
+// On bootstrap
+var config = new MapperConfiguration(
+   cfg =>
+       {
+           cfg.CreateMaps(
+               new AssemblyTypeResolver(
+                   new[]
+                       {
+                           typeof(MyApiModel).Assembly,
+                           typeof(MyDto).Assembly
+                       }));
+       });
+
+var mapper = config.CreateMapper();
+
+builder.RegisterInstance(mapper);
+
+builder.RegisterGeneric(typeof(AutoMapperMapper<,>))
+   .As(typeof(IMapper<,>))   
+   .SingleInstance();
+
+// Injecting AutoMapper's IMapper into your API controller directly:
+public UsersController(IUsersRepository usersRepository, IMapper mapper)
+
+// Or via your own IMapper<,> abstraction:
+public class AutoMapperMapper<TSource, TDestination> : IMapper<TSource, TDestination>
+{
+    private readonly IMapper mapper;
+
+    public AutoMapperMapper(IMapper mapper)
+    {
+        if (mapper == null)
+        {
+            throw new ArgumentNullException(nameof(mapper));
+        }
+
+        this.mapper = mapper;
+    }
+
+    public TDestination Map(TSource source)
+    {
+        return this.mapper.Map<TSource, TDestination>(source);
+    }
+
+    public IEnumerable<TDestination> Map(IEnumerable<TSource> source)
+    {
+        return this.mapper.Map<IEnumerable<TSource>, IEnumerable<TDestination>>(source);
+    }
+}
+
+public UsersController(IUsersRepository usersRepository, IMapper<MyDomain, MyApiModel> mapper)
+```
+
+> Note that neither the `IMapper<,>` or `AutoMapperMapper<,>` types are provided out of the box because they are domain types - they should be shaped to suit your domain, and if they were provided out of the box then the Dependency Inversion Principle would be violated.
 
 ## Mapping from Data Transfer Objects (DTOs) to Domain Models
 
