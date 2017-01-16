@@ -193,16 +193,18 @@ var config = new MapperConfiguration(
 
 var mapper = config.CreateMapper();
 
+// Register AutoMapper's IMapper
 builder.RegisterInstance(mapper);
 
+// Register your IMapper<,> implemenation
 builder.RegisterGeneric(typeof(AutoMapperMapper<,>))
-   .As(typeof(IMapper<,>))   
-   .SingleInstance();
+    .As(typeof(IMapper<,>))    
+    .SingleInstance();
 
 // Injecting AutoMapper's IMapper into your API controller directly:
 public UsersController(IUsersRepository usersRepository, IMapper mapper)
 
-// Or via your own IMapper<,> abstraction:
+// Or via your own IMapper<,> abstraction (allows better extensibility/testing options):
 public class AutoMapperMapper<TSource, TDestination> : IMapper<TSource, TDestination>
 {
     private readonly IMapper mapper;
@@ -227,11 +229,6 @@ public class AutoMapperMapper<TSource, TDestination> : IMapper<TSource, TDestina
         return this.mapper.Map<IEnumerable<TSource>, IEnumerable<TDestination>>(source);
     }
 }
-
-// Register your IMapper<,> implemenation
-builder.RegisterGeneric(typeof(AutoMapperMapper<,>))
-    .As(typeof(IMapper<,>))    
-    .SingleInstance();
 
 // Inject your mapper abstraction into your controller:
 public UsersController(IUsersRepository usersRepository, IMapper<MyDomain, MyApiModel> mapper)
