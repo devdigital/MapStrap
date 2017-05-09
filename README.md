@@ -161,16 +161,41 @@ public IHttpActionResult Users()
 Here `mapper` is an instance of a domain `IMapper<TSource, TDestination>` type, which has one AutoMapper implementation:
 
 ```csharp
+public interface IMapper<in TSource, out TDestination>
+{
+    TDestination Map(TSource source);
+
+    IEnumerable<TDestination> MapCollection(IEnumerable<TSource> source);
+}
+
 internal class AutoMapperMapper<TSource, TDestination> : IMapper<TSource, TDestination>
-{        
+{   
+    private readonly IMapper mapper;
+    
+    public AutoMapperMapper(IMapper mapper)
+    {
+       if (mapper == null)
+       {
+           throw new ArgumentNullException(nameof(mapper));
+       }
+       
+       this.mapper = mapper;
+    }
+    
     public TDestination Map(TSource source)
     {
-        return Mapper.Map<TSource, TDestination>(source);
+        return this.mapper.Map<TSource, TDestination>(source);
+        
+        // could also use static API here:
+        // return Mapper.Map<TSource, TDestination>(source);
     }
 
     public IEnumerable<TDestination> MapCollection(IEnumerable<TSource> source)
     {
-        return Mapper.Map<IEnumerable<TSource>, IEnumerable<TDestination>>(source);
+        return this.mapper.Map<IEnumerable<TSource>, IEnumerable<TDestination>>(source);
+        
+        // could also use static API here:
+        // return Mapper.Map<IEnumerable<TSource>, IEnumerable<TDestination>>(source);
     }
 }
 ```
