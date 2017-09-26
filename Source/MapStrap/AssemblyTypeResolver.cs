@@ -15,12 +15,7 @@
 
         public AssemblyTypeResolver(IEnumerable<Assembly> assemblies, bool publicOnly = true)
         {
-            if (assemblies == null)
-            {
-                throw new ArgumentNullException(nameof(assemblies));
-            }
-            
-            this.assemblies = assemblies;
+            this.assemblies = assemblies ?? throw new ArgumentNullException(nameof(assemblies));
             this.publicOnly = publicOnly;
         }
 

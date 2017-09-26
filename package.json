@@ -1,0 +1,8 @@
+{
+  "name": "MapStrap",
+  "version": "3.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/devdigital/MapStrap.git",
+  "author": "devdigital <devdigitial.cloud@gmail.com>",
+  "license": "MIT"
+}
