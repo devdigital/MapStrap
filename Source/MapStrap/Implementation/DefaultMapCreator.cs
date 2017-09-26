@@ -13,12 +13,7 @@
 
         public DefaultMapCreator(IMapperConfigurationExpression expression)
         {
-            if (expression == null)
-            {
-                throw new ArgumentNullException(nameof(expression));
-            }
-
-            this.expression = expression;
+            this.expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }
 
         public void CreateConventionMaps(IEnumerable<Type> types)
