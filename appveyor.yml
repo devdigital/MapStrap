@@ -26,6 +26,9 @@ dotnet_csproj:
   package_version: '{version}'
 nuget:
   disable_publish_on_pr: true
+artifacts:
+- path: '**\*.nupkg'
+  name: NuGet
 deploy:
 - provider: NuGet
   name: production
