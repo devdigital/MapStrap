@@ -19,12 +19,11 @@ before_build:
   - cd Source && nuget restore
 build:
   publish_nuget: true
-assembly_info:
+dotnet_csproj:
   patch: true
-  file: AssemblyInfo.*
-  assembly_version: "{version}"
-  assembly_file_version: "{version}"
-  assembly_informational_version: "{version}"
+  file: '**\*.csproj'
+  version: '{version}'
+  package_version: '{version}'
 nuget:
   disable_publish_on_pr: true
 deploy:
