@@ -4,5 +4,11 @@
   "main": "index.js",
   "repository": "https://github.com/devdigital/MapStrap.git",
   "author": "devdigital <devdigitial.cloud@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "release": "standard-version"
+  },
+  "dependencies": {
+    "standard-version": "^4.2.0"
+  }
 }
