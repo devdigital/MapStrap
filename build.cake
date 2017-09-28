@@ -1,16 +1,14 @@
+#addin "Cake.FileHelpers"
+#addin nuget:?package=Newtonsoft.Json&version=9.0.1
+
 var target = Argument("Target", "Default");
 var configuration = Argument("Configuration", "Release");
 
 Information("Running target " + target + " in configuration " + configuration);
 
-var buildNumber =
-    HasArgument("BuildNumber") ? Argument<int>("BuildNumber") :
-    AppVeyor.IsRunningOnAppVeyor ? AppVeyor.Environment.Build.Number :
-    TravisCI.IsRunningOnTravisCI ? TravisCI.Environment.Build.BuildNumber :
-    EnvironmentVariable("BuildNumber") != null ? int.Parse(EnvironmentVariable("BuildNumber")) : 1;
-
-// var isTag = EnvironmentVariable("APPVEYOR_REPO_TAG") != null && EnvironmentVariable("APPVEYOR_REPO_TAG") == "true";
-// var revision = isTag ? null : "beta-" +buildNumber.ToString("D4");
+var packageJsonText = FileReadText("./package.json");
+var packageJson = Newtonsoft.Json.Linq.JObject.Parse(packageJsonText);
+var buildNumber = packageJson.Property("version").Value;
 
 var artifactsDirectory = Directory("./artifacts");
 
@@ -71,7 +69,7 @@ Task("Pack")
     .Does(() =>
     {
         var version = buildNumber.ToString();
-        foreach (var project in GetFiles("./Source/**/*.csproj"))
+        foreach (var project in GetFiles("./Source/**/MapStrap.csproj"))
         {
             Information("Packing project " + project);
             DotNetCorePack(

@@ -1,31 +1,22 @@
 version: '{build}'
-init:
-  # For tagged releases, use tag name as version
-  - ps: >-
-      if ($env:APPVEYOR_REPO_TAG -eq "true")
-      {
-        $versionNumber = $($env:APPVEYOR_REPO_TAG_NAME.TrimStart("v"))
-        Write-Host "Setting build version to $versionNumber"
-        Update-AppveyorBuild -Version "$versionNumber"
-      }
 pull_requests:
   do_not_increment_build_number: true
 image: Visual Studio 2017
-build:
-  publish_nuget: true
 dotnet_csproj:
   patch: true
   file: '**\*.csproj'
   version: '{version}'
   package_version: '{version}'
-nuget:
-  disable_publish_on_pr: true
+build:
+  publish_nuget: true
 build_script:
 - ps: .\build.ps1
 test: off
 artifacts:
 - path: '**\artifacts\*.nupkg'
   name: NuGet
+nuget:
+  disable_publish_on_pr: true
 deploy:
 - provider: NuGet
   name: production
