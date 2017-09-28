@@ -71,7 +71,7 @@ Task("Pack")
     .Does(() =>
     {
         var version = buildNumber.ToString();
-        foreach (var project in GetFiles("./src/**/*.csproj"))
+        foreach (var project in GetFiles("./Source/**/*.csproj"))
         {
             Information("Packing project " + project);
             DotNetCorePack(
