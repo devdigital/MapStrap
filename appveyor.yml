@@ -1,6 +1,4 @@
 version: '{build}'
-platform: Any CPU
-configuration: Release
 init:
   # For tagged releases, use tag name as version
   - ps: >-
@@ -13,10 +11,6 @@ init:
 pull_requests:
   do_not_increment_build_number: true
 image: Visual Studio 2017
-install:
-  - appveyor DownloadFile https://dist.nuget.org/win-x86-commandline/v4.0.0/nuget.exe
-before_build:
-  - cd Source && nuget restore
 build:
   publish_nuget: true
 dotnet_csproj:
@@ -26,6 +20,8 @@ dotnet_csproj:
   package_version: '{version}'
 nuget:
   disable_publish_on_pr: true
+build_script:
+- ps: .\build.ps1
 artifacts:
 - path: '**\*.nupkg'
   name: NuGet
